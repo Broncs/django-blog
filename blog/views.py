@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from datetime import date
+from .models import Post 
 # from django.http import HttpResponse
 
 # Create your views here.
@@ -78,16 +79,24 @@ def starting_page(request):
 
     sorted_posts = sorted(posts_list,key=get_date)
     latest_post = sorted_posts[-3:]
-    return render(request, 'blog/index.html' ,{"posts": latest_post})
+    
+    post_list_db =  Post.objects.all().order_by("-date")[:3]
+    return render(request, 'blog/index.html' ,{"posts": post_list_db})
 
 
 def posts(request):
+    post_list_db =  Post.objects.all().order_by("-date")
     return render(request, 'blog/all-posts.html',{
-        "all_posts": posts_list
+        "all_posts": post_list_db
     })
 
 
 def post_detail(request, slug):
-    identified_post = next((post for post in posts_list if post['slug'] == slug), None)
+    # identified_post = next((post for post in posts_list if post['slug'] == slug), None)
+    # post_list_db =  Post.objects.get(slug=slug)
+    identified_post = get_object_or_404(Post, slug=slug)
     
+    # posts_test =  Post.objects.filter(title__contains='mming')
+    # print(posts_test)
+   
     return render(request, 'blog/post-detail.html', {"post": identified_post})
